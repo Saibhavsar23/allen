@@ -100,7 +100,7 @@ section.s.tight{padding:64px 0}
 .banner{background:var(--navy);color:#dfe5f2;padding:84px 0 76px;position:relative;overflow:hidden}
 .banner::after{content:"";position:absolute;right:-120px;top:-120px;width:420px;height:420px;border:1px solid rgba(179,139,77,.35);border-radius:50%}
 .banner::before{content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;border:1px solid rgba(179,139,77,.25);border-radius:50%}
-.banner h1{color:#fff;font-size:clamp(2.2rem,3.6vw + .8rem,3.8rem);max-width:20ch}
+.banner h1{color:#fff;font-size:clamp(2.2rem,3.6vw + .8rem,3.8rem);max-width:26ch}
 .banner p{margin-top:20px;font-size:1.2rem;max-width:62ch;color:#c9d2e6}
 .banner .kicker{color:var(--brass-lt)}
 .crumbs{font-size:.85rem;color:#9fb0d0;margin-bottom:22px}
@@ -246,7 +246,7 @@ textarea{min-height:160px;resize:vertical}
 .person .meta a{font-weight:600}
 
 /* Footer */
-footer{background:var(--navy);color:#b9c4dc;padding:76px 0 calc(34px + 70px)}
+footer{background:var(--navy);color:#b9c4dc;padding:76px 0 44px}
 footer .grid{grid-template-columns:1.5fr 1fr 1fr;gap:56px}
 footer h4{font-family:var(--sans);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;color:var(--brass-lt);margin-bottom:20px}
 footer ul{list-style:none;display:grid;gap:10px}
@@ -274,6 +274,8 @@ footer .legal{margin-top:56px;padding-top:26px;border-top:1px solid rgba(255,255
 .chat-form input{min-height:46px;padding:10px 16px;border-radius:999px}
 .chat-form button{flex:none;border:0;background:var(--brass);color:#14100a;border-radius:999px;padding:0 20px;font-weight:700;cursor:pointer}
 
+@media (min-width:921px){.split.top .photo-frame{position:sticky;top:calc(var(--nav-h) + var(--util-h) + 28px)}}
+
 /* ===== Responsive ===== */
 @media (max-width:1080px){
   .g4{grid-template-columns:repeat(2,1fr)}
@@ -287,9 +289,12 @@ footer .legal{margin-top:56px;padding-top:26px;border-top:1px solid rgba(255,255
 @media (max-width:920px){
   :root{--nav-h:68px;--util-h:0px}
   .util{display:none}
+  /* backdrop-filter would make the header the containing block for the fixed menu and clip it */
+  .navbar{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--ivory)}
   .burger{display:block}
   .menu{position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;background:var(--ivory);flex-direction:column;align-items:stretch;gap:0;padding:12px 24px 120px;overflow:auto;transform:translateX(100%);visibility:hidden;transition:transform .4s var(--ease),visibility .4s}
   .menu.open{transform:none;visibility:visible}
+  body.menu-open .callbar,body.menu-open .chat-fab{display:none}
   .menu>li{border-bottom:1px solid var(--line)}
   .menu a,.menu button.dd{width:100%;padding:18px 2px;font-family:var(--serif);font-size:1.4rem;font-weight:500;justify-content:space-between}
   .menu>li>a::after,.menu button.dd::after{display:none}
@@ -308,6 +313,7 @@ footer .legal{margin-top:56px;padding-top:26px;border-top:1px solid rgba(255,255
   .cta-band .btns{justify-content:flex-start}
   .person{grid-template-columns:1fr;gap:28px}
   .person img{max-width:200px}
+  footer{padding-bottom:calc(44px + 84px)}
   footer .grid{grid-template-columns:1fr 1fr}
   footer .grid>div:first-child{grid-column:1/-1}
   .callbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:1500;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(250,247,241,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
@@ -380,7 +386,7 @@ footer .legal{margin-top:56px;padding-top:26px;border-top:1px solid rgba(255,255
   </ul>
 </div></header>
 
-<main id="main">
+<main id="main" tabindex="-1">
 
 <!-- ===================== HOME ===================== -->
 <div class="page" id="page-home" data-title="Home">
@@ -795,11 +801,13 @@ footer .legal{margin-top:56px;padding-top:26px;border-top:1px solid rgba(255,255
   var menu=document.getElementById('menu'),burger=document.getElementById('burger'),svc=document.getElementById('svc'),svcbtn=document.getElementById('svcbtn');
   var svcPages=['atg-resources','real-estate','mortgages','credit','insurance','estate-planning'];
 
-  function closeMenu(){menu.classList.remove('open');burger.setAttribute('aria-expanded','false');document.body.style.overflow=''}
-  burger.addEventListener('click',function(){var o=menu.classList.toggle('open');burger.setAttribute('aria-expanded',o);document.body.style.overflow=o?'hidden':''});
+  function closeMenu(){menu.classList.remove('open');burger.setAttribute('aria-expanded','false');document.body.style.overflow='';document.body.classList.remove('menu-open');burger.setAttribute('aria-label','Open menu')}
+  burger.addEventListener('click',function(){var o=menu.classList.toggle('open');burger.setAttribute('aria-expanded',o);burger.setAttribute('aria-label',o?'Close menu':'Open menu');document.body.style.overflow=o?'hidden':'';document.body.classList.toggle('menu-open',o)});
   svcbtn.addEventListener('click',function(e){e.stopPropagation();var o=svc.classList.toggle('open');svcbtn.setAttribute('aria-expanded',o)});
   document.addEventListener('click',function(e){if(!svc.contains(e.target)){svc.classList.remove('open');svcbtn.setAttribute('aria-expanded','false')}});
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){svc.classList.remove('open');closeMenu();closeChat()}});
+
+  document.querySelector('.skip').addEventListener('click',function(e){e.preventDefault();var m=document.getElementById('main');m.focus({preventScroll:true});m.scrollIntoView()});
 
   function route(){
     var h=(location.hash||'#home').slice(1);
